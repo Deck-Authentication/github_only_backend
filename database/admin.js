@@ -24,11 +24,7 @@ const AdminSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    apps: {
-      github: {
-        apiKey: String,
-      },
-    },
+    githubApiKey: String,
     members: [MemberSchema],
     teams: [TeamSchema],
   },

@@ -6,6 +6,7 @@ const cors = require("cors")
 const app = express()
 const githubRouter = require("./github")
 const memberRouter = require("./member")
+const adminRouter = require("./admin")
 
 /* Load the .env file and make the variables available to the rest of the application. */
 require("dotenv").config({ path: ".env.local" })
@@ -44,10 +45,11 @@ app.get("/", (_, res) => {
 })
 
 // Secure the backend auth0 API management in production mode
-process.env.ENVIRONMENT === "production" ? app.use(jwtCheck) : null
+// process.env.ENVIRONMENT === "production" ? app.use(jwtCheck) : null
+app.use(jwtCheck)
 
+app.use("/admin", adminRouter)
 app.use("/github", githubRouter)
-
 app.use("/member", memberRouter)
 
 app.listen(PORT, () => {
