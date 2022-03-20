@@ -18,13 +18,18 @@ const TeamSchema = new mongoose.Schema({
   members: [String],
 })
 
+const GithubSchema = new mongoose.Schema({
+  apiKey: String,
+  organization: String,
+})
+
 const AdminSchema = new mongoose.Schema(
   {
     email: {
       type: String,
       required: true,
     },
-    githubApiKey: String,
+    github: GithubSchema,
     members: [MemberSchema],
     teams: [TeamSchema],
   },
