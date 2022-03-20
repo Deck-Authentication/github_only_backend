@@ -44,9 +44,16 @@ app.get("/", (_, res) => {
   res.status(200).send("Welcome to the Deck API. To learn more or sign up for Deck, visit https://withdeck.com")
 })
 
-// Secure the backend auth0 API management in production mode
-// process.env.ENVIRONMENT === "production" ? app.use(jwtCheck) : null
+// Secure the backend auth0 API management,
+// also getting the access token with the user email from the frontend
 app.use(jwtCheck)
+
+// user must be logged in with their email address to call the backend
+app.use((req, res, next) => {
+  req.user["https://example.com/email"]
+    ? next()
+    : res.status(401).json({ ok: false, error: "You must be logged in to access this route." })
+})
 
 app.use("/admin", adminRouter)
 app.use("/github", githubRouter)
