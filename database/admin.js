@@ -29,7 +29,10 @@ const AdminSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    github: GithubSchema,
+    github: {
+      type: GithubSchema,
+      required: true,
+    },
     members: [MemberSchema],
     teams: [TeamSchema],
   },
