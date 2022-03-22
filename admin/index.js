@@ -32,7 +32,8 @@ adminRouter.get("/get-all-data", async (req, res) => {
 
 adminRouter.put("/set-email", async (req, res) => {
   const { email } = req.body
-  await Admin.findOneAndUpdate({ email: req.session.email }, { email }).catch((err) => res.status(500).json({ ok: false, err }))
+  const oldEmail = req.user["https://example.com/email"]
+  await Admin.findOneAndUpdate({ email: oldEmail }, { email }).catch((err) => res.status(500).json({ ok: false, err }))
   res.status(200).json({ ok: true, message: "Admin email updated" })
 })
 
