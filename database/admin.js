@@ -35,7 +35,7 @@ const TeamSchema = new mongoose.Schema({
   name: String,
   githubTeam: {
     type: Map,
-    of: new Schema({
+    of: new mongoose.Schema({
       repositories: [githubTeamRepo],
       htmlUrl: {
         type: String,
