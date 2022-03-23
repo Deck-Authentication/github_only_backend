@@ -10,10 +10,51 @@ const MemberSchema = new mongoose.Schema({
   team: [String],
 })
 
+// a github repository which belongs to a certain github team
+const githubTeamRepo = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  id: {
+    type: String,
+    required: true,
+  },
+  htmlUrl: {
+    type: String,
+    required: true,
+  },
+  roleName: {
+    type: String,
+    required: true,
+  },
+})
+
 // for now, let's just do github
 const TeamSchema = new mongoose.Schema({
   name: String,
-  repositories: [String],
+  githubTeam: {
+    type: Map,
+    of: new Schema({
+      repositories: [githubTeamRepo],
+      htmlUrl: {
+        type: String,
+        required: true,
+      },
+      id: {
+        type: String,
+        required: true,
+      },
+      slug: {
+        type: String,
+        required: true,
+      },
+      privacy: {
+        type: String,
+        required: true,
+      },
+    }),
+  },
   // an array of member _id strings
   members: [String],
 })
