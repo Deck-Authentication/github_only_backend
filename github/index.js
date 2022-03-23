@@ -2,6 +2,7 @@ const express = require("express")
 const githubRouter = express.Router()
 const githubTeamRouter = require("./team")
 const Admin = require("../database/admin")
+const { listAllTeams } = require("./util")
 
 // save a Github credentials &  to Deck's database
 // the key is a personal access token from a Github user: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
@@ -33,6 +34,7 @@ githubRouter.put("/import-all", async (req, res) => {
 
   // 2. get all teams from github
   // 2.1. fetch all members of each team from github
+  const teams = await listAllTeams({ apiKey, organization }).catch((err) => res.status(500).json({ ok: false, message: err }))
   // 2.2. fetch all repositories of each team from github
 
   // 3. get all users from github
