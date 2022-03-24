@@ -36,7 +36,8 @@ githubRouter.put("/import-all", async (req, res) => {
 
   // 2. get all teams from the github organization
   const teams = await listAllTeams({ apiKey, organization }).catch((err) => res.status(500).json({ ok: false, message: err }))
-
+  let teamsObj = {}
+  teams.map((team) => (teamsObj[team.id] = team))
   // 3. get all users from the github organization
   const members = await listAllOrgMembers({ apiKey, organization }).catch((err) =>
     res.status(500).json({ ok: false, message: err })
@@ -46,7 +47,7 @@ githubRouter.put("/import-all", async (req, res) => {
   members.map((member) => (membersObj[member.id] = member))
 
   // 4. save all teams to Deck's database
-  admin.teams = teams
+  admin.teams = teamsObj
   // 5. save all users to Deck's database
   admin.members = membersObj
   await admin.save().catch((err) => res.status(500).json({ ok: false, message: err }))

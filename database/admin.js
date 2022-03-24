@@ -75,7 +75,7 @@ const AdminSchema = new mongoose.Schema(
       required: true,
     },
     members: mongoose.Schema.Types.Mixed,
-    teams: [mongoose.Schema.Types.Mixed],
+    teams: mongoose.Schema.Types.Mixed,
   },
   { collection: "admins" }
 )
