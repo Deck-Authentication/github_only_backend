@@ -74,8 +74,8 @@ const AdminSchema = new mongoose.Schema(
       type: GithubSchema,
       required: true,
     },
-    members: [MemberSchema],
-    teams: [TeamSchema],
+    members: [mongoose.Schema.Types.Mixed],
+    teams: [mongoose.Schema.Types.Mixed],
   },
   { collection: "admins" }
 )

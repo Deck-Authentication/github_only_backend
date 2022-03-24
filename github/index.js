@@ -2,7 +2,7 @@ const express = require("express")
 const githubRouter = express.Router()
 const githubTeamRouter = require("./team")
 const Admin = require("../database/admin")
-const { listAllTeams } = require("./util")
+const { listAllTeams, listAllOrgMembers } = require("./util")
 
 // save a Github credentials &  to Deck's database
 // the key is a personal access token from a Github user: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
@@ -26,20 +26,28 @@ githubRouter.post("/save-credentials", async (req, res) => {
 githubRouter.put("/import-all", async (req, res) => {
   // 1. get Github's apiKey and organization from Deck's database
   const email = req.user["https://example.com/email"]
-  const github = await Admin.findOne({ email }, "github").catch((err) => res.status(500).json({ ok: false, message: err }))
+  let admin = await Admin.findOne({ email }).catch((err) => res.status(500).json({ ok: false, message: err }))
+  if (!admin) req.status(400).json({ ok: false, message: "Error: Admin not found" })
 
+  const { github } = admin
   if (!github || !github.apiKey || !github.organization)
     return res.status(404).json({ ok: false, message: "Error: Github credentials not found" })
   const { apiKey, organization } = github
 
-  // 2. get all teams from github
-  // 2.1. fetch all members of each team from github
+  // 2. get all teams from the github organization
   const teams = await listAllTeams({ apiKey, organization }).catch((err) => res.status(500).json({ ok: false, message: err }))
-  // 2.2. fetch all repositories of each team from github
+  // 3. get all users from the github organization
+  const members = await listAllOrgMembers({ apiKey, organization }).catch((err) =>
+    res.status(500).json({ ok: false, message: err })
+  )
 
-  // 3. get all users from github
   // 4. save all teams to Deck's database
+  admin.teams = teams
   // 5. save all users to Deck's database
+  admin.members = members
+  await admin.save().catch((err) => res.status(500).json({ ok: false, message: err }))
+
+  return res.status(200).json({ ok: true, message: "Successfully imported all data from Github" })
 })
 
 githubRouter.use("/team", githubTeamRouter)
