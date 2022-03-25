@@ -44,8 +44,6 @@ async function listAllTeamRepos({ apiKey, organization, teamSlug }) {
 async function listAllTeamMembers({ apiKey, organization, teamSlug }) {
   const octokit = new Octokit({ auth: apiKey })
 
-  console.log("teamSlug: ", teamSlug)
-
   const members = await octokit
     .request("GET /orgs/{org}/teams/{team_slug}/members", { org: organization, team_slug: teamSlug })
     .then((res) => {
