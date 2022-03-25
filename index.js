@@ -7,6 +7,7 @@ const app = express()
 const githubRouter = require("./github")
 const memberRouter = require("./member")
 const adminRouter = require("./admin")
+const Admin = require("./database/admin")
 
 /* Load the .env file and make the variables available to the rest of the application. */
 require("dotenv").config({ path: ".env.local" })
@@ -49,10 +50,32 @@ app.get("/", (_, res) => {
 app.use(jwtCheck)
 
 // user must be logged in with their email address to call the backend
-app.use((req, res, next) => {
-  req.user["https://example.com/email"]
-    ? next()
-    : res.status(401).json({ ok: false, error: "You must be logged in to access this route." })
+app.use(async (req, res, next) => {
+  if (req.user["https://example.com/email"]) {
+    let admin = await Admin.findOne({ email }).catch((err) => res.status(500).json({ ok: false, message: err.message }))
+    if (!admin) {
+      // if the user logs in for the first time, create a collection with the email field as provided by auth0
+      Admin.create(
+        {
+          email: email,
+          github: {
+            apiKey: "",
+            organization: "",
+          },
+        },
+        (err, newAdmin) => {
+          if (err) return res.status(500).json({ ok: false, message: err })
+          admin = newAdmin
+
+          res.status(200).json({ ok: true, admin })
+        }
+      )
+
+      return
+    }
+
+    next()
+  } else res.status(401).json({ ok: false, error: "You must be logged in to access this route." })
 })
 
 app.use("/admin", adminRouter)

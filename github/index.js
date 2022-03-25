@@ -27,7 +27,6 @@ githubRouter.put("/import-all", async (req, res) => {
   // 1. get Github's apiKey and organization from Deck's database
   const email = req.user["https://example.com/email"]
   let admin = await Admin.findOne({ email }).catch((err) => res.status(500).json({ ok: false, message: err }))
-  if (!admin) req.status(400).json({ ok: false, message: "Error: Admin not found" })
 
   const { github } = admin
   if (!github || !github.apiKey || !github.organization)
