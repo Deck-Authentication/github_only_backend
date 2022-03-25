@@ -23,24 +23,28 @@ githubTeam.get("/list-repos", async (req, res) => {
   return res.status(200).json({ ok: true, repos })
 })
 
-// given a team id, list all members for that github team
+// given a team slug, list all members for that github team
+// prerequisite: teh teamSlug must belong to a team from Deck's database
 githubTeam.get("/list-members", async (req, res) => {
   const email = req.user["https://example.com/email"]
   let admin = await Admin.findOne({ email }).catch((err) => res.status(500).json({ ok: false, message: err.message }))
+  const { github } = admin
   if (!github || !github.apiKey || !github.organization)
     return res.status(404).json({ ok: false, message: "Error: Github credentials not found" })
   const { apiKey, organization } = github
 
-  const { teamId } = req.query
-  if (!admin.team || !admin.team[teamId]) res.status(404).json({ ok: false, message: "No team found matches the team id" })
+  const { teamSlug } = req.query
+  if (!admin.teams) return res.status(404).json({ ok: false, message: "No team found" })
 
-  const teamSlug = admin.team[teamId].slug
+  let listMemberError
+  const members = await listAllTeamMembers({ apiKey, organization, teamSlug }).catch((error) => {
+    console.error(error)
+    listMemberError = error
+  })
 
-  const members = await listAllTeamMembers({ apiKey, organization, teamSlug }).catch((err) =>
-    req.status(500).json({ ok: false, message: err.message })
-  )
-
-  return res.status(200).json({ ok: true, repos })
+  return listMemberError
+    ? res.status(500).json({ ok: false, error: listMemberError })
+    : res.status(200).json({ ok: true, members })
 })
 
 // list all teams under the organization

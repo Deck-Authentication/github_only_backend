@@ -52,6 +52,7 @@ app.use(jwtCheck)
 // user must be logged in with their email address to call the backend
 app.use(async (req, res, next) => {
   if (req.user["https://example.com/email"]) {
+    const email = req.user["https://example.com/email"]
     let admin = await Admin.findOne({ email }).catch((err) => res.status(500).json({ ok: false, message: err.message }))
     if (!admin) {
       // if the user logs in for the first time, create a collection with the email field as provided by auth0
