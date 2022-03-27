@@ -2,7 +2,7 @@ const express = require("express")
 const githubRouter = express.Router()
 const githubTeamRouter = require("./team")
 const Admin = require("../database/admin")
-const { listAllTeams, listAllOrgMembers } = require("./util")
+const { listAllTeams, listAllOrgMembers, listOrgActivities } = require("./util")
 
 // save a Github credentials &  to Deck's database
 // the key is a personal access token from a Github user: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
@@ -52,6 +52,29 @@ githubRouter.put("/import-all", async (req, res) => {
   await admin.save().catch((err) => res.status(500).json({ ok: false, message: err }))
 
   return res.status(200).json({ ok: true, message: "Successfully imported all data from Github" })
+})
+
+// list all activities in a Github organization
+githubRouter.get("/list-activities", async (req, res) => {
+  // 1. get Github's apiKey and organization from Deck's database
+  const email = req.user["https://example.com/email"]
+  let admin = await Admin.findOne({ email }).catch((err) => res.status(500).json({ ok: false, message: err }))
+
+  const { github } = admin
+  if (!github || !github.apiKey || !github.organization)
+    return res.status(404).json({ ok: false, message: "Error: Github credentials not found" })
+  const { apiKey, organization } = github
+  const { perPage } = req.query
+
+  // 2. get all activities in the github organization
+  let activitiesFetchError = null
+  const activities = await listOrgActivities({ apiKey, organization, perPage }).catch((err) => {
+    activitiesFetchError = err
+  })
+
+  return activitiesFetchError
+    ? res.status(500).json({ ok: false, message: activitiesFetchError })
+    : res.status(200).json({ ok: true, activities })
 })
 
 githubRouter.use("/team", githubTeamRouter)

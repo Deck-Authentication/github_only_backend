@@ -77,9 +77,33 @@ async function listAllOrgMembers({ apiKey, organization }) {
   return members
 }
 
+// list all activities for a github organization
+// by default, show 30 recent activities per page
+async function listOrgActivities({ apiKey, organization, perPage = 30 }) {
+  const octokit = new Octokit({ auth: apiKey })
+
+  const activities = await octokit
+    .request("GET /orgs/{org}/audit-log", {
+      org: organization,
+      per_page: perPage,
+    })
+    .then((res) => {
+      if (res.status !== 200) throw new Error(res.data.message)
+      return res.data
+    })
+    .catch((err) => {
+      console.log(err)
+      // throw an error for the caller of this function to handle
+      throw new Error(err.message)
+    })
+
+  return activities
+}
+
 module.exports = {
   listAllTeams,
   listAllTeamRepos,
   listAllTeamMembers,
   listAllOrgMembers,
+  listOrgActivities,
 }
