@@ -100,10 +100,34 @@ async function listOrgActivities({ apiKey, organization, perPage = 30 }) {
   return activities
 }
 
+async function createTeam({ apiKey, organization, teamName, privacy = "closed", teamDescription = "" }) {
+  const octokit = new Octokit({ auth: apiKey })
+
+  const team = await octokit
+    .request("POST /orgs/{org}/teams", {
+      org: organization,
+      name: teamName,
+      privacy: privacy,
+      description: teamDescription,
+    })
+    .then((res) => {
+      if (res.status !== 201) throw new Error(res.data.message)
+      return res.data
+    })
+    .catch((err) => {
+      console.log(err)
+      // throw an error for the caller of this function to handle
+      throw new Error(err.message)
+    })
+
+  return team
+}
+
 module.exports = {
   listAllTeams,
   listAllTeamRepos,
   listAllTeamMembers,
   listAllOrgMembers,
   listOrgActivities,
+  createTeam,
 }

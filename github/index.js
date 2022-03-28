@@ -54,6 +54,24 @@ githubRouter.put("/import-all", async (req, res) => {
   return res.status(200).json({ ok: true, message: "Successfully imported all data from Github" })
 })
 
+// list all members of an organization on Github
+githubRouter.get("/list-members", async (req, res) => {
+  // 1. get Github's apiKey and organization from Deck's database
+  const email = req.user["https://example.com/email"]
+  let admin = await Admin.findOne({ email }).catch((err) => res.status(500).json({ ok: false, message: err }))
+
+  const { github } = admin
+  if (!github || !github.apiKey || !github.organization)
+    return res.status(404).json({ ok: false, message: "Error: Github credentials not found" })
+  const { apiKey, organization } = github
+
+  // 2. get all users from the github organization
+  let listOrgMembersErr
+  const members = await listAllOrgMembers({ apiKey, organization }).catch((err) => (listOrgMembersErr = err))
+
+  return listOrgMembersErr ? res.status(500).json({ ok: false, message: err }) : res.status(200).json({ ok: true, members })
+})
+
 // list all activities in a Github organization
 githubRouter.get("/list-activities", async (req, res) => {
   // 1. get Github's apiKey and organization from Deck's database
