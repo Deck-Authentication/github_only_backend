@@ -16,7 +16,7 @@ require("dotenv").config({ path: ".env.local" })
 const corsOptions =
   process.env.ENVIRONMENT === "production"
     ? {
-        origin: FRONTEND_URL,
+        origin: process.env.FRONTEND_URL,
         optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
       }
     : {}
