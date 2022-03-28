@@ -16,7 +16,7 @@ require("dotenv").config({ path: ".env.local" })
 const corsOptions =
   process.env.ENVIRONMENT === "production"
     ? {
-        origin: "https://app.withdeck.com",
+        origin: FRONTEND_URL,
         optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
       }
     : {}
