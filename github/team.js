@@ -6,13 +6,9 @@ const Admin = require("../database/admin")
 // list all teams for a github organization
 githubTeam.get("/list-all", async (req, res) => {
   const { apiKey, organization } = req
-  console.log("apiKey: ", apiKey)
-  console.log("organization: ", organization)
   const teams = await listAllTeams({ apiKey, organization }).catch((err) =>
     res.status(500).json({ ok: false, message: err.message })
   )
-
-  console.log("teams: ", teams)
 
   return res.status(200).json({ ok: true, teams })
 })
@@ -55,7 +51,6 @@ githubTeam.delete("/delete", async (req, res) => {})
 // create a new team
 githubTeam.post("/create", async (req, res) => {
   const { apiKey, organization } = req
-
   // team name can contain whitespaces
   const { team } = req.body
   let createTeamError
@@ -66,7 +61,7 @@ githubTeam.post("/create", async (req, res) => {
 
   return createTeamError
     ? res.status(500).json({ ok: false, error: createTeamError })
-    : res.status(200).json({ ok: true, newTeam })
+    : res.status(200).json({ ok: true, team: newTeam })
 })
 
 // remove members from a team
