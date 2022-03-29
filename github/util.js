@@ -123,6 +123,25 @@ async function createTeam({ apiKey, organization, teamName, privacy = "closed", 
   return team
 }
 
+async function deleteTeam({ apiKey, organization, teamSlug }) {
+  const octokit = new Octokit({ auth: apiKey })
+
+  await octokit
+    .request("DELETE /orgs/{org}/teams/{team_slug}", {
+      org: organization,
+      team_slug: teamSlug,
+    })
+    .then((res) => {
+      if (res.status !== 201) throw new Error(res.data.message)
+      return res.data
+    })
+    .catch((err) => {
+      console.log(err)
+      // throw an error for the caller of this function to handle
+      throw new Error(err.message)
+    })
+}
+
 module.exports = {
   listAllTeams,
   listAllTeamRepos,

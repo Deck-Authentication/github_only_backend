@@ -1,6 +1,6 @@
 const express = require("express")
 const githubTeam = express.Router()
-const { listAllTeamRepos, listAllTeamMembers, createTeam, listAllTeams } = require("./util")
+const { listAllTeamRepos, listAllTeamMembers, createTeam, listAllTeams, deleteTeam } = require("./util")
 const Admin = require("../database/admin")
 
 // list all teams for a github organization
@@ -46,7 +46,20 @@ githubTeam.get("/list-members", async (req, res) => {
 })
 
 // delete a team & remove all members from it
-githubTeam.delete("/delete", async (req, res) => {})
+githubTeam.delete("/delete", async (req, res) => {
+  const { apiKey, organization } = req
+  const { teamSlug } = req.query
+
+  let deleteTeamError
+  await deleteTeam({ apiKey, organization, teamSlug }).catch((error) => {
+    console.log(error)
+    deleteTeamError = error
+  })
+
+  return deleteTeamError
+    ? res.status(500).json({ ok: false, error: JSON.stringify(deleteTeamError) })
+    : res.status(200).json({ ok: true })
+})
 
 // create a new team
 githubTeam.post("/create", async (req, res) => {
