@@ -142,7 +142,7 @@ async function deleteTeam({ apiKey, organization, teamSlug }) {
     })
 }
 
-async function listTeamsForUser({apiKey, organization, user})
+async function listTeamsForUser({ apiKey, organization, user }) {}
 
 module.exports = {
   listAllTeams,
