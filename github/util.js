@@ -132,15 +132,17 @@ async function deleteTeam({ apiKey, organization, teamSlug }) {
       team_slug: teamSlug,
     })
     .then((res) => {
-      if (res.status !== 201) throw new Error(res.data.message)
+      if (res.status !== 204) throw new Error(res.data)
       return res.data
     })
     .catch((err) => {
       console.log(err)
       // throw an error for the caller of this function to handle
-      throw new Error(err.message)
+      throw new Error(err)
     })
 }
+
+async function listTeamsForUser({apiKey, organization, user})
 
 module.exports = {
   listAllTeams,
@@ -149,4 +151,5 @@ module.exports = {
   listAllOrgMembers,
   listOrgActivities,
   createTeam,
+  deleteTeam,
 }

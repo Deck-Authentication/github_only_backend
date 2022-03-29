@@ -48,7 +48,7 @@ githubTeam.get("/list-members", async (req, res) => {
 // delete a team & remove all members from it
 githubTeam.delete("/delete", async (req, res) => {
   const { apiKey, organization } = req
-  const { teamSlug } = req.query
+  const { teamSlug } = req.body
 
   let deleteTeamError
   await deleteTeam({ apiKey, organization, teamSlug }).catch((error) => {
