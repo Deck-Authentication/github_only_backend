@@ -82,19 +82,6 @@ githubTeam.post("/create", async (req, res) => {
     : res.status(200).json({ ok: true, team: newTeam })
 })
 
-// remove members from a team
-githubTeam.delete("/remove-member", async (req, res, next) => {
-  const { apiKey, organization } = req
-  const { teamSlug, member } = req.body
-
-  await removeMemberFromTeam({ apiKey, organization, teamSlug, member }).catch((error) => {
-    console.error(error)
-    next(error)
-  })
-
-  return res.status(200).json({ ok: true, message: `Successfully remove ${member} from ${teamSlug}` })
-})
-
 // invite a member to a team
 githubTeam.post("/invite-member", async (req, res, next) => {
   const { apiKey, organization } = req
@@ -106,6 +93,19 @@ githubTeam.post("/invite-member", async (req, res, next) => {
   })
 
   return res.status(200).json({ ok: true, message: `Successfully invited ${member} to ${teamSlug}` })
+})
+
+// remove members from a team
+githubTeam.delete("/remove-member", async (req, res, next) => {
+  const { apiKey, organization } = req
+  const { teamSlug, member } = req.body
+
+  await removeMemberFromTeam({ apiKey, organization, teamSlug, member }).catch((error) => {
+    console.error(error)
+    next(error)
+  })
+
+  return res.status(200).json({ ok: true, message: `Successfully remove ${member} from ${teamSlug}` })
 })
 
 module.exports = githubTeam
