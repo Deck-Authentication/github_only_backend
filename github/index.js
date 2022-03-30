@@ -86,7 +86,6 @@ githubRouter.get("/list-members", async (req, res, next) => {
   const teams = await listAllTeams({ apiKey, organization }).catch((err) => next(err))
   let teamMembersPromises = []
   teams.map((team) => teamMembersPromises.push(listAllTeamMembersWithTeamSlug({ apiKey, organization, teamSlug: team.slug })))
-  console.log("teamMembersPromises.length: ", teamMembersPromises.length)
   await Promise.allSettled(teamMembersPromises).then((responses) => {
     for (let response of responses) {
       if (response.status === "fulfilled") {
