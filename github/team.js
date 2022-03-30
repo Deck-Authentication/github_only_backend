@@ -27,22 +27,19 @@ githubTeam.get("/list-repos", async (req, res) => {
 })
 
 // given a team slug, list all members for that github team
-// prerequisite: teh teamSlug must belong to a team from Deck's database
+// prerequisite: the teamSlug must belong to a team from Deck's database
 githubTeam.get("/list-members", async (req, res) => {
   const { apiKey, organization, email } = req
   let admin = await Admin.findOne({ email }).catch((err) => res.status(500).json({ ok: false, message: err }))
   const { teamSlug } = req.query
   if (!admin.teams) return res.status(404).json({ ok: false, message: "No team found" })
 
-  let listMemberError
   const members = await listAllTeamMembers({ apiKey, organization, teamSlug }).catch((error) => {
     console.error(error)
-    listMemberError = error
+    next(error)
   })
 
-  return listMemberError
-    ? res.status(500).json({ ok: false, error: listMemberError })
-    : res.status(200).json({ ok: true, members })
+  return res.status(200).json({ ok: true, members })
 })
 
 // delete a team & remove all members from it
