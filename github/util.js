@@ -181,6 +181,26 @@ async function inviteMemberToTeam({ apiKey, organization, teamSlug, member }) {
     })
 }
 
+async function removeMemberFromTeam({ apiKey, organization, teamSlug, member }) {
+  const octokit = new Octokit({ auth: apiKey })
+
+  await octokit
+    .request("DELETE /orgs/{org}/teams/{team_slug}/memberships/{username}", {
+      org: organization,
+      team_slug: teamSlug,
+      username: member,
+    })
+    .then((res) => {
+      if (res.status != 204) throw new Error(res.data)
+      return res.data
+    })
+    .catch((err) => {
+      console.log(err)
+      // throw an error for the caller of this function to handle
+      throw new Error(err)
+    })
+}
+
 module.exports = {
   listAllTeams,
   listAllTeamRepos,
@@ -191,4 +211,5 @@ module.exports = {
   createTeam,
   deleteTeam,
   inviteMemberToTeam,
+  removeMemberFromTeam,
 }
