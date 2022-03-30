@@ -105,20 +105,30 @@ githubRouter.get("/list-members", async (req, res, next) => {
 })
 
 // list all activities in a Github organization
-githubRouter.get("/list-activities", async (req, res) => {
+githubRouter.get("/list-activities", async (req, res, next) => {
   // 1. get Github's apiKey and organization from the request
   const { apiKey, organization } = req
   const { perPage } = req.query
 
   // 2. get all activities in the github organization
-  let activitiesFetchError = null
-  const activities = await listOrgActivities({ apiKey, organization, perPage }).catch((err) => {
-    activitiesFetchError = err
+  const allActivities = await listOrgActivities({ apiKey, organization, perPage }).catch((err) => next(err))
+
+  // 3. Refine the activities to return only org & team-related ones
+  const activities = allActivities.filter((activity) => {
+    if (!activity.action) return false
+    switch (activity.action) {
+      case "team.add_member":
+      case "team.remove_member":
+      case "org.add_member":
+      case "org.invite_member":
+      case "team.add_repository":
+        return true
+      default:
+        return false
+    }
   })
 
-  return activitiesFetchError
-    ? res.status(500).json({ ok: false, message: activitiesFetchError })
-    : res.status(200).json({ ok: true, activities })
+  return res.status(200).json({ ok: true, activities })
 })
 
 githubRouter.use("/team", githubTeamRouter)
