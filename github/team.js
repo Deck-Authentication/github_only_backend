@@ -34,15 +34,12 @@ githubTeam.get("/list-members", async (req, res) => {
   const { teamSlug } = req.query
   if (!admin.teams) return res.status(404).json({ ok: false, message: "No team found" })
 
-  let listMemberError
   const members = await listAllTeamMembers({ apiKey, organization, teamSlug }).catch((error) => {
     console.error(error)
-    listMemberError = error
+    next(error)
   })
 
-  return listMemberError
-    ? res.status(500).json({ ok: false, error: listMemberError })
-    : res.status(200).json({ ok: true, members })
+  return res.status(200).json({ ok: true, members })
 })
 
 // delete a team & remove all members from it

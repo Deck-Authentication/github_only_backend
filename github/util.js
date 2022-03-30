@@ -59,6 +59,25 @@ async function listAllTeamMembers({ apiKey, organization, teamSlug }) {
   return members
 }
 
+// similar to listAllTeamMembers, but returns an object of the teamSlug and the list of members
+async function listAllTeamMembersWithTeamSlug({ apiKey, organization, teamSlug }) {
+  const octokit = new Octokit({ auth: apiKey })
+
+  const members = await octokit
+    .request("GET /orgs/{org}/teams/{team_slug}/members", { org: organization, team_slug: teamSlug })
+    .then((res) => {
+      if (res.status !== 200) throw new Error(res.data.message)
+      return res.data
+    })
+    .catch((err) => {
+      console.log(err)
+      // throw an error for the caller of this function to handle
+      throw new Error(err.message)
+    })
+
+  return { members, teamSlug }
+}
+
 async function listAllOrgMembers({ apiKey, organization }) {
   const octokit = new Octokit({ auth: apiKey })
 
@@ -146,6 +165,7 @@ module.exports = {
   listAllTeams,
   listAllTeamRepos,
   listAllTeamMembers,
+  listAllTeamMembersWithTeamSlug,
   listAllOrgMembers,
   listOrgActivities,
   createTeam,
