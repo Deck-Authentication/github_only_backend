@@ -83,6 +83,12 @@ app.use("/admin", adminRouter)
 app.use("/github", githubRouter)
 app.use("/member", memberRouter)
 
+app.use((error, _, res, next) => {
+  console.error(error)
+
+  return res.status(500).json({ ok: false, error: error.message })
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`)
 })

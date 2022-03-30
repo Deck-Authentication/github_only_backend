@@ -2,7 +2,7 @@ const express = require("express")
 const githubRouter = express.Router()
 const githubTeamRouter = require("./team")
 const Admin = require("../database/admin")
-const { listAllTeams, listAllOrgMembers, listOrgActivities } = require("./util")
+const { listAllTeams, listAllOrgMembers, listOrgActivities, listAllTeamMembers } = require("./util")
 
 // save a Github credentials &  to Deck's database
 // the key is a personal access token from a Github user: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
@@ -75,10 +75,22 @@ githubRouter.use(async function getCredentials(req, res, next) {
 // list all members of an organization on Github
 githubRouter.get("/list-members", async (req, res) => {
   // 1. get Github's apiKey and organization from the request
-  const { apiKey, organization, email } = req
+  const { apiKey, organization } = req
   // 2. get all users from the github organization
   let listOrgMembersErr
-  const members = await listAllOrgMembers({ apiKey, organization }).catch((err) => (listOrgMembersErr = err))
+  let members = await listAllOrgMembers({ apiKey, organization }).catch((err) => (listOrgMembersErr = err))
+  if (listOrgMembersErr) return res.status(500).json({ ok: false, message: listOrgMembersErr })
+  // an object to look up the teams for organization members
+  // the keys are the member login ids
+  // the values are a set of team objects
+  let memberTeamsLookup = {}
+  // list all teams within the organization to propagate the memberTeamsLookup
+  const teams = await listAllTeams({ apiKey, organization }).catch((err) => res.status(500).json({ ok: false, message: err }))
+  teams.map(team => {
+    const teamMembers = await listAllTeamMembers({ apiKey, organization, teamId: team.id }).catch((error) => {
+      return res.status(500).json({ ok: false, message: error })
+    })
+  })
 
   return listOrgMembersErr ? res.status(500).json({ ok: false, message: err }) : res.status(200).json({ ok: true, members })
 })
