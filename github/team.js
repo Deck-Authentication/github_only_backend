@@ -1,6 +1,6 @@
 const express = require("express")
 const githubTeam = express.Router()
-const { listAllTeamRepos, listAllTeamMembers, createTeam, listAllTeams, deleteTeam } = require("./util")
+const { listAllTeamRepos, listAllTeamMembers, createTeam, listAllTeams, deleteTeam, inviteMemberToTeam } = require("./util")
 const Admin = require("../database/admin")
 
 // list all teams for a github organization
@@ -77,7 +77,17 @@ githubTeam.post("/create", async (req, res) => {
 // remove members from a team
 githubTeam.delete("/remove-members", async (req, res) => {})
 
-// add members to a team
-githubTeam.post("/add-members", async (req, res) => {})
+// add a member to a team
+githubTeam.post("/invite-member", async (req, res, next) => {
+  const { apiKey, organization } = req
+  const { teamSlug, member } = req.body
+
+  await inviteMemberToTeam({ apiKey, organization, teamSlug, member }).catch((error) => {
+    console.error(error)
+    next(error)
+  })
+
+  return res.status(200).json({ ok: true, message: `Successfully invited ${member} to ${teamSlug}` })
+})
 
 module.exports = githubTeam
