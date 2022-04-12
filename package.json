@@ -8,6 +8,8 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "@sentry/node": "^6.19.6",
+    "@sentry/tracing": "^6.19.6",
     "axios": "^0.26.1",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",

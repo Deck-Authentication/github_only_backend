@@ -8,6 +8,21 @@ const githubRouter = require("./github")
 const memberRouter = require("./member")
 const adminRouter = require("./admin")
 const Admin = require("./database/admin")
+const Sentry = require("@sentry/node")
+const Tracing = require("@sentry/tracing")
+
+Sentry.init({
+  dsn: "https://7304e503172043e4b408c7e6ba33ef3e@o1200475.ingest.sentry.io/6324451",
+  // Set tracesSampleRate to 1.0 to capture 100%
+  // of transactions for performance monitoring.
+  // We recommend adjusting this value in production
+  tracesSampleRate: 1.0,
+})
+
+const transaction = Sentry.startTransaction({
+  op: "test",
+  name: "My First Test Transaction",
+})
 
 /* Load the .env file and make the variables available to the rest of the application. */
 require("dotenv").config({ path: ".env.local" })
